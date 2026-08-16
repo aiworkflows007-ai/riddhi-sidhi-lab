@@ -1,0 +1,54 @@
+name: Deploy Riddhi Sidhi Lab to Hostinger VPS
+
+on:
+  push:
+    branches: [master, main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-rsl
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install & Build
+        run: |
+          npm ci
+          npm run build
+
+      - name: Configure SSH
+        if: env.DEPLOY_SSH_KEY != ''
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Deploy to VPS
+        if: env.DEPLOY_SSH_KEY != ''
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST || '147.93.108.231' }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER || 'root' }}
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+              -o IdentitiesOnly=yes \
+              -o BatchMode=yes \
+              -o ConnectTimeout=25 \
+              "$DEPLOY_USER@$DEPLOY_HOST" "bash /root/vps-infra/scripts/deploy-rsl.sh 2>/dev/null || true"
