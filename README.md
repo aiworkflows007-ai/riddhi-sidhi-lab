@@ -1,54 +1,69 @@
-# React + TypeScript + Vite
+# Riddhi Sidhi Janch Lab
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A web application designed for a diagnostic pathology laboratory serving patients and healthcare professionals. The platform enables patients to browse comprehensive diagnostic test catalogues, schedule doorstep home sample collections, consult affiliated doctors, and track diagnostic reports online.
 
-Currently, two official plugins are available:
+## Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Frontend:** React 19, TypeScript, Vite
+- **Styling & UI:** Tailwind CSS, Lucide React
+- **Utilities:** QRCode generation, Canvas Confetti
+- **Testing:** Playwright (End-to-End testing)
+- **Deployment:** Docker, Nginx
 
-## Expanding the ESLint configuration
+## Key Features
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Diagnostic Test Catalogue:** Categorized pathology test catalogue with pricing, fasting guidelines, parameter details, and turnaround times.
+- **Symptom Matcher:** Interactive symptom assessment workflow that recommends relevant health screening packages.
+- **Home Collection & Lab Booking:** Multi-step booking pipeline supporting home sample collection and walk-in appointments.
+- **Report Tracking:** Real-time tracking of diagnostic sample stages and digital report access using booking ID or phone number.
+- **Doctor Concierge:** Direct appointment coordination and queue assistance for local medical specialists.
+- **Staff Operations Drawer:** Administrative interface for phlebotomist dispatch and sample status updates.
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## Project Structure
+
+```
+├── src/
+│   ├── components/      # UI components (Booking, TestCatalogue, ReportTracker, etc.)
+│   ├── context/         # React Context for state and local persistence
+│   ├── data/            # Diagnostic test definitions and doctor profiles
+│   ├── types/           # TypeScript domain interfaces and type definitions
+│   ├── App.tsx          # Main application layout and routing
+│   └── main.tsx         # Application entry point
+├── tests/               # Playwright automated end-to-end test suites
+├── nginx.conf           # Production Nginx reverse proxy configuration
+├── Dockerfile           # Production container build
+└── package.json         # Project metadata and dependencies
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Setup and Installation
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Prerequisites
+- Node.js (v18 or higher)
+- npm or yarn
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+### Local Development
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/aiworkflows007-ai/riddhi-sidhi-lab.git
+   cd riddhi-sidhi-lab
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
+4. Open `http://localhost:5173` in your browser.
+
+### Production Build
+```bash
+npm run build
+npm run preview
+```
+
+### Running Tests
+```bash
+npx playwright test
 ```
