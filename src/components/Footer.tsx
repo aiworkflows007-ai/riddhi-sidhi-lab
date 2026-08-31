@@ -72,12 +72,14 @@ export const Footer: React.FC = () => {
                 </button>
               </li>
               <li>
-                <button 
-                  onClick={() => { setActiveTab('catalogue'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                  style={{ background: 'none', border: 'none', color: 'var(--slate-300)', cursor: 'pointer', textAlign: 'left', padding: 0 }}
+                <a 
+                  href="https://wa.me/919835012345?text=Hello%20DoctorSathi%20Ara%2C%20mujhe%20doctor%20ka%20number%20lagwana%20hai"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: 'var(--whatsapp)', textDecoration: 'none', fontWeight: 700 }}
                 >
-                  🧪 {language === 'hi' ? 'घर पर खून जांच (Lab Blood Tests)' : 'Doorstep Blood Tests & Packages'}
-                </button>
+                  💬 {language === 'hi' ? 'व्हाट्सएप डायरेक्ट बुकिंग (₹39)' : 'Instant WhatsApp Token Booking'}
+                </a>
               </li>
               <li>
                 <button 

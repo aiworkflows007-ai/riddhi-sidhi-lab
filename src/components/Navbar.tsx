@@ -2,8 +2,6 @@ import React from 'react';
 import { useLab } from '../context/LabContext';
 import { 
   Stethoscope,
-  FlaskConical, 
-  ShoppingCart, 
   Globe, 
   PhoneCall, 
   ShieldCheck, 
@@ -11,19 +9,18 @@ import {
   Activity,
   ClipboardList,
   Sparkles,
-  MessageSquare
+  MessageSquare,
+  Search,
+  Timer
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
   const { 
     language, 
     toggleLanguage, 
-    cart, 
-    setIsBookingModalOpen, 
     activeTab, 
     setActiveTab, 
-    setIsStaffOpsOpen,
-    setIsPrescriptionModalOpen
+    setIsStaffOpsOpen
   } = useLab();
 
   return (
@@ -37,21 +34,21 @@ export const Navbar: React.FC = () => {
             </div>
             <div className="brand-titles">
               <div className="brand-name" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <span>{language === 'hi' ? 'DoctorSathi' : 'DoctorSathi'}</span>
+                <span>DoctorSathi</span>
                 <span style={{ 
                   fontSize: '0.6875rem', 
-                  fontWeight: 700, 
+                  fontWeight: 800, 
                   background: 'var(--primary-100)', 
                   color: 'var(--primary-800)', 
-                  padding: '0.15rem 0.45rem', 
+                  padding: '0.15rem 0.5rem', 
                   borderRadius: 'var(--radius-full)',
-                  letterSpacing: '0.02em'
+                  letterSpacing: '0.04em'
                 }}>
                   ARA
                 </span>
               </div>
               <div className="brand-tagline">
-                {language === 'hi' ? 'डॉक्टर का नंबर अब घर बैठे • लाइन से मुक्ति' : 'Skip Clinic Lines • Doctor Token & Lab'}
+                {language === 'hi' ? 'डॉक्टर का नंबर (पर्चा) अब घर बैठे • ₹39' : 'Skip Clinic Queues • Ara Doctor Tokens'}
               </div>
             </div>
           </a>
@@ -61,38 +58,29 @@ export const Navbar: React.FC = () => {
             <ul className="nav-links">
               <li>
                 <button 
-                  onClick={() => setActiveTab('home')} 
+                  onClick={() => { setActiveTab('home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} 
                   className={`nav-link ${activeTab === 'home' ? 'active' : ''}`}
                 >
-                  <Activity size={18} />
-                  {language === 'hi' ? 'होम' : 'Home'}
+                  <Activity size={17} />
+                  <span>{language === 'hi' ? 'होम' : 'Home'}</span>
                 </button>
               </li>
               <li>
                 <button 
-                  onClick={() => setActiveTab('doctors')} 
+                  onClick={() => { setActiveTab('doctors'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} 
                   className={`nav-link ${activeTab === 'doctors' ? 'active' : ''}`}
                 >
-                  <Stethoscope size={18} />
-                  {language === 'hi' ? 'डॉक्टर नंबर (Tokens)' : 'Doctor Tokens'}
+                  <Stethoscope size={17} />
+                  <span>{language === 'hi' ? 'डॉक्टर सूची' : 'Find Doctors'}</span>
                 </button>
               </li>
               <li>
                 <button 
-                  onClick={() => setActiveTab('tracker')} 
+                  onClick={() => { setActiveTab('tracker'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} 
                   className={`nav-link ${activeTab === 'tracker' ? 'active' : ''}`}
                 >
-                  <FileText size={18} />
-                  {language === 'hi' ? 'टोकन स्थिति (Track)' : 'Track Token'}
-                </button>
-              </li>
-              <li>
-                <button 
-                  onClick={() => setActiveTab('catalogue')} 
-                  className={`nav-link ${activeTab === 'catalogue' ? 'active' : ''}`}
-                >
-                  <FlaskConical size={18} />
-                  {language === 'hi' ? 'लैब टेस्ट (Diagnostics)' : 'Lab Tests'}
+                  <Timer size={17} />
+                  <span>{language === 'hi' ? 'टोकन ट्रैक' : 'Track Slip'}</span>
                 </button>
               </li>
             </ul>
@@ -100,27 +88,14 @@ export const Navbar: React.FC = () => {
 
           {/* Nav Actions */}
           <div className="nav-actions">
-            {/* WhatsApp Quick Link */}
-            <a 
-              href="https://wa.me/919835012345?text=Hello%20DoctorSathi%20Ara%2C%20mujhe%20doctor%20ka%20number%20lagwana%20hai"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-sm btn-whatsapp"
-              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
-              title="Book via WhatsApp"
-            >
-              <MessageSquare size={16} />
-              <span>{language === 'hi' ? 'व्हाट्सएप बुकिंग' : 'WhatsApp'}</span>
-            </a>
-
             {/* Staff Operations Console Shortcut */}
             <button 
               onClick={() => setIsStaffOpsOpen(true)}
               className="btn btn-sm btn-secondary"
-              title="Lab & Token Operations Console"
+              title="Ground Staff Queue Console"
             >
               <ClipboardList size={16} />
-              <span style={{ fontSize: '0.8rem' }}>{language === 'hi' ? 'स्टाफ' : 'Staff Ops'}</span>
+              <span style={{ fontSize: '0.8rem' }}>{language === 'hi' ? 'स्टाफ' : 'Staff'}</span>
             </button>
 
             {/* Language Switcher */}
@@ -133,38 +108,18 @@ export const Navbar: React.FC = () => {
               <span>{language === 'en' ? 'हिन्दी' : 'English'}</span>
             </button>
 
-            {/* Cart Trigger */}
-            <button 
-              onClick={() => setIsBookingModalOpen(true)}
-              className="btn btn-primary btn-sm"
-              style={{ position: 'relative' }}
-              title="Diagnostic Cart"
+            {/* WhatsApp CTA Button */}
+            <a 
+              href="https://wa.me/919835012345?text=Hello%20DoctorSathi%20Ara%2C%20mujhe%20doctor%20ka%20number%20lagwana%20hai"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-sm btn-whatsapp"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700 }}
+              title="Book via WhatsApp"
             >
-              <ShoppingCart size={18} />
-              <span>{language === 'hi' ? 'कार्ट' : 'Cart'}</span>
-              {cart.length > 0 && (
-                <span 
-                  style={{
-                    position: 'absolute',
-                    top: '-6px',
-                    right: '-6px',
-                    background: 'var(--amber-500)',
-                    color: '#fff',
-                    borderRadius: '50%',
-                    width: '20px',
-                    height: '20px',
-                    fontSize: '0.75rem',
-                    fontWeight: 700,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
-                  }}
-                >
-                  {cart.length}
-                </span>
-              )}
-            </button>
+              <MessageSquare size={16} />
+              <span>{language === 'hi' ? 'व्हाट्सएप बुकिंग (₹39)' : 'Book WhatsApp'}</span>
+            </a>
           </div>
         </div>
       </div>

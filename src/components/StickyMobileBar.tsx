@@ -2,12 +2,7 @@ import React from 'react';
 import { useLab } from '../context/LabContext';
 import { 
   Home, 
-  FlaskConical, 
-  Search, 
   Stethoscope, 
-  Send, 
-  ShoppingCart,
-  PhoneCall,
   MessageSquare,
   Timer
 } from 'lucide-react';
@@ -15,15 +10,12 @@ import {
 export const StickyMobileBar: React.FC = () => {
   const { 
     language, 
-    cart, 
     activeTab, 
-    setActiveTab, 
-    setIsBookingModalOpen, 
-    setIsPrescriptionModalOpen 
+    setActiveTab 
   } = useLab();
 
   return (
-    <div className="mobile-sticky-bar" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', padding: '0.4rem 0.25rem', gap: '0.2rem' }}>
+    <div className="mobile-sticky-bar" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', padding: '0.4rem 0.25rem', gap: '0.2rem' }}>
       {/* Tab 1: Home */}
       <button 
         onClick={() => { setActiveTab('home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
@@ -37,7 +29,7 @@ export const StickyMobileBar: React.FC = () => {
           background: 'none',
           border: 'none',
           color: activeTab === 'home' ? 'var(--primary-700)' : 'var(--slate-500)',
-          fontSize: '0.7rem',
+          fontSize: '0.72rem',
           fontWeight: activeTab === 'home' ? 800 : 500
         }}
       >
@@ -58,7 +50,7 @@ export const StickyMobileBar: React.FC = () => {
           background: 'none',
           border: 'none',
           color: activeTab === 'doctors' ? 'var(--primary-700)' : 'var(--slate-500)',
-          fontSize: '0.7rem',
+          fontSize: '0.72rem',
           fontWeight: activeTab === 'doctors' ? 800 : 600
         }}
       >
@@ -79,7 +71,7 @@ export const StickyMobileBar: React.FC = () => {
           background: 'none',
           border: 'none',
           color: activeTab === 'tracker' ? 'var(--primary-700)' : 'var(--slate-500)',
-          fontSize: '0.7rem',
+          fontSize: '0.72rem',
           fontWeight: activeTab === 'tracker' ? 800 : 500
         }}
       >
@@ -87,28 +79,7 @@ export const StickyMobileBar: React.FC = () => {
         <span>{language === 'hi' ? 'ट्रैक' : 'Track'}</span>
       </button>
 
-      {/* Tab 4: Tests */}
-      <button 
-        onClick={() => { setActiveTab('catalogue'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-        className="btn"
-        style={{
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: '0.15rem',
-          padding: '0.25rem',
-          minHeight: '44px',
-          background: 'none',
-          border: 'none',
-          color: activeTab === 'catalogue' ? 'var(--primary-700)' : 'var(--slate-500)',
-          fontSize: '0.7rem',
-          fontWeight: activeTab === 'catalogue' ? 800 : 500
-        }}
-      >
-        <FlaskConical size={18} />
-        <span>{language === 'hi' ? 'जांच' : 'Tests'}</span>
-      </button>
-
-      {/* Tab 5: WhatsApp Direct */}
+      {/* Tab 4: WhatsApp Direct */}
       <a 
         href="https://wa.me/919835012345?text=Hello%20DoctorSathi%20Ara%2C%20mujhe%20doctor%20ka%20number%20lagwana%20hai"
         target="_blank"
@@ -123,13 +94,13 @@ export const StickyMobileBar: React.FC = () => {
           background: 'none',
           border: 'none',
           color: 'var(--whatsapp)',
-          fontSize: '0.7rem',
-          fontWeight: 700,
+          fontSize: '0.72rem',
+          fontWeight: 800,
           textDecoration: 'none'
         }}
       >
         <MessageSquare size={18} />
-        <span>{language === 'hi' ? 'व्हाट्सएप' : 'WhatsApp'}</span>
+        <span>{language === 'hi' ? 'व्हाट्सएप (₹39)' : 'WhatsApp'}</span>
       </a>
     </div>
   );

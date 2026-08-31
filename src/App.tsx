@@ -2,14 +2,8 @@ import React from 'react';
 import { LabProvider, useLab } from './context/LabContext';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
-import { TestCatalogue } from './components/TestCatalogue';
-import { ReportTracker } from './components/ReportTracker';
 import { DoctorConcierge } from './components/DoctorConcierge';
-import { SymptomMatcherModal } from './components/SymptomMatcherModal';
-import { UploadPrescriptionModal } from './components/UploadPrescriptionModal';
-import { TestDetailModal } from './components/TestDetailModal';
-import { BookingModal } from './components/BookingModal';
-import { VerificationModal } from './components/VerificationModal';
+import { ReportTracker } from './components/ReportTracker';
 import { StaffOpsDrawer } from './components/StaffOpsDrawer';
 import { StickyMobileBar } from './components/StickyMobileBar';
 import { Footer } from './components/Footer';
@@ -26,15 +20,14 @@ const MainLayout: React.FC = () => {
         {activeTab === 'home' && (
           <>
             <Hero />
-            <TestCatalogue />
-            <ReportTracker />
             <DoctorConcierge />
+            <ReportTracker />
           </>
         )}
 
-        {activeTab === 'catalogue' && (
+        {activeTab === 'doctors' && (
           <div style={{ paddingTop: '1.5rem' }}>
-            <TestCatalogue />
+            <DoctorConcierge />
           </div>
         )}
 
@@ -43,22 +36,11 @@ const MainLayout: React.FC = () => {
             <ReportTracker />
           </div>
         )}
-
-        {activeTab === 'doctors' && (
-          <div style={{ paddingTop: '1.5rem' }}>
-            <DoctorConcierge />
-          </div>
-        )}
       </main>
 
       <Footer />
 
-      {/* Global Modals & Drawers */}
-      <SymptomMatcherModal />
-      <UploadPrescriptionModal />
-      <TestDetailModal />
-      <BookingModal />
-      <VerificationModal />
+      {/* Global Staff Drawer & Mobile Bar */}
       <StaffOpsDrawer />
       <StickyMobileBar />
     </div>
