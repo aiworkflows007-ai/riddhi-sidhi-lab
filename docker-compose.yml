@@ -3,8 +3,6 @@ services:
     image: nginx:alpine
     container_name: riddhi-sidhi-lab-site
     restart: unless-stopped
-    ports:
-      - "3009:80"
     volumes:
       - ./site:/usr/share/nginx/html:ro
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
@@ -14,3 +12,4 @@ services:
 networks:
   the-perfect-mart_default:
     external: true
+
