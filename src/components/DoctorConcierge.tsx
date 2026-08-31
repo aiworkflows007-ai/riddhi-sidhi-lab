@@ -113,7 +113,7 @@ export const DoctorConcierge: React.FC = () => {
       `💰 *Doctor Fee:* ₹${doctor.consultationFee} | *Token Fee:* ₹${doctor.tokenBookingFee || 39}\n\n` +
       `Kripya mera parcha lagwane ki process confirm karein.`
     );
-    window.open(`https://wa.me/919835012345?text=${text}`, '_blank');
+    window.open(`https://wa.me/917999614511?text=${text}`, '_blank');
   };
 
   const handleWhatsAppConfirmation = () => {
@@ -128,7 +128,7 @@ export const DoctorConcierge: React.FC = () => {
       (symptomsNote ? `📝 *समस्या:* ${symptomsNote}\n\n` : '\n') +
       `DoctorSathi टीम सुबह 6:00 AM क्लिनिक पर नंबर लगवाकर पर्चे का फोटो व सीरियल नंबर भेजेगी।`
     );
-    window.open(`https://wa.me/919835012345?text=${message}`, '_blank');
+    window.open(`https://wa.me/917999614511?text=${message}`, '_blank');
   };
 
   const closeConciergeModal = () => {

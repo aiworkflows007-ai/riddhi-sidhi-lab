@@ -136,7 +136,7 @@ export const BookingModal: React.FC = () => {
       `https://rsl.ai-workflows.cloud/#tracker`
     );
 
-    window.open(`https://wa.me/919835012345?text=${message}`, '_blank');
+    window.open(`https://wa.me/917999614511?text=${message}`, '_blank');
   };
 
   const handleClose = () => {

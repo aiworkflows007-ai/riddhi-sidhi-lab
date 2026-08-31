@@ -35,7 +35,7 @@ export const UploadPrescriptionModal: React.FC = () => {
     );
 
     // Open WhatsApp URL
-    window.open(`https://wa.me/919835012345?text=${message}`, '_blank');
+    window.open(`https://wa.me/917999614511?text=${message}`, '_blank');
     setSubmitted(true);
   };
 

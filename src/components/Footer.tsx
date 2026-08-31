@@ -73,7 +73,7 @@ export const Footer: React.FC = () => {
               </li>
               <li>
                 <a 
-                  href="https://wa.me/919835012345?text=Hello%20DoctorSathi%20Ara%2C%20mujhe%20doctor%20ka%20number%20lagwana%20hai"
+                  href="https://wa.me/917999614511?text=Hello%20DoctorSathi%20Ara%2C%20mujhe%20doctor%20ka%20number%20lagwana%20hai"
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{ color: 'var(--whatsapp)', textDecoration: 'none', fontWeight: 700 }}
@@ -113,7 +113,7 @@ export const Footer: React.FC = () => {
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <MessageSquare size={16} color="var(--whatsapp)" />
-                <span>WhatsApp Helpline: +91 98350 12345</span>
+                <span>WhatsApp Helpline: +91 79996 14511</span>
               </div>
             </div>
           </div>

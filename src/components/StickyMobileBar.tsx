@@ -81,7 +81,7 @@ export const StickyMobileBar: React.FC = () => {
 
       {/* Tab 4: WhatsApp Direct */}
       <a 
-        href="https://wa.me/919835012345?text=Hello%20DoctorSathi%20Ara%2C%20mujhe%20doctor%20ka%20number%20lagwana%20hai"
+        href="https://wa.me/917999614511?text=Hello%20DoctorSathi%20Ara%2C%20mujhe%20doctor%20ka%20number%20lagwana%20hai"
         target="_blank"
         rel="noopener noreferrer"
         className="btn"

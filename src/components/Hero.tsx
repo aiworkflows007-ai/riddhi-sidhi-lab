@@ -40,7 +40,7 @@ export const Hero: React.FC = () => {
 
     const message = `Hello DoctorSathi Ara! 👋%0A%0AMujhe doctor ka number/token lagwana hai:%0A• Doctor: ${encodeURIComponent(selectedDoctor.name)} (${encodeURIComponent(selectedDoctor.specialization)})%0A• Clinic: ${encodeURIComponent(selectedDoctor.clinicName)}, ${encodeURIComponent(selectedDoctor.locality)}%0A• Patient: ${encodeURIComponent(quickPatientName)}%0A• Mobile: ${encodeURIComponent(quickPhone)}%0A• Date: ${encodeURIComponent(quickDate)}%0A• Token Fee: ₹${selectedDoctor.tokenBookingFee || 39}%0A%0AKripya subah 6 AM mera parcha lagwa kar slip bhejein.`;
     
-    window.open(`https://wa.me/919835012345?text=${message}`, '_blank');
+    window.open(`https://wa.me/917999614511?text=${message}`, '_blank');
   };
 
   return (
@@ -126,7 +126,7 @@ export const Hero: React.FC = () => {
               </button>
 
               <a 
-                href="https://wa.me/919835012345?text=Hello%20DoctorSathi%20Ara%2C%20mujhe%20doctor%20ka%20number%20lagwana%20hai"
+                href="https://wa.me/917999614511?text=Hello%20DoctorSathi%20Ara%2C%20mujhe%20doctor%20ka%20number%20lagwana%20hai"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-whatsapp btn-lg"
