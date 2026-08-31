@@ -15,7 +15,13 @@ import {
   UserCheck,
   Star,
   Users,
-  ShieldCheck
+  ShieldCheck,
+  Timer,
+  BadgePercent,
+  MessageSquare,
+  Sparkles,
+  ArrowRight,
+  Flame
 } from 'lucide-react';
 
 export const DoctorConcierge: React.FC = () => {
@@ -39,14 +45,15 @@ export const DoctorConcierge: React.FC = () => {
   const [conciergeSuccess, setConciergeSuccess] = useState<{ id: string; doctor: string } | null>(null);
 
   const specialties = [
-    { id: 'all', nameEn: 'All Doctors', nameHi: 'सभी डॉक्टर' },
-    { id: 'gynae', nameEn: 'Gynecology & Women', nameHi: 'स्त्री एवं प्रसूति रोग' },
-    { id: 'ortho', nameEn: 'Orthopedics & Joint', nameHi: 'हड्डी एवं जोड़ रोग' },
-    { id: 'physician', nameEn: 'General Physician', nameHi: 'सामान्य फिजिशियन' },
-    { id: 'cardio', nameEn: 'Cardiology (Heart)', nameHi: 'हृदय रोग' },
-    { id: 'pediatric', nameEn: 'Pediatrics (Child)', nameHi: 'शिशु एवं बाल रोग' },
-    { id: 'skin', nameEn: 'Dermatology (Skin)', nameHi: 'चर्म एवं त्वचा रोग' },
-    { id: 'ent', nameEn: 'ENT (Ear/Nose/Throat)', nameHi: 'कान, नाक व गला' }
+    { id: 'all', nameEn: 'All Specialties', nameHi: 'सभी विशेषज्ञ' },
+    { id: 'gynae', nameEn: 'Gynecology (महिला रोग)', nameHi: 'स्त्री एवं प्रसूति रोग' },
+    { id: 'ortho', nameEn: 'Orthopedics (हड्डी रोग)', nameHi: 'हड्डी, जोड़ व नस' },
+    { id: 'physician', nameEn: 'Physician (फिजिशियन)', nameHi: 'वरिष्ठ फिजिशियन व शुगर' },
+    { id: 'pediatric', nameEn: 'Child Specialist (शिशु रोग)', nameHi: 'शिशु एवं बाल रोग' },
+    { id: 'surgeon', nameEn: 'Surgeon (सर्जन)', nameHi: 'सर्जरी व दूरबीन ऑपरेशन' },
+    { id: 'cardio', nameEn: 'Cardiology (हृदय रोग)', nameHi: 'हृदय एवं बीपी रोग' },
+    { id: 'skin', nameEn: 'Dermatology (चर्म रोग)', nameHi: 'चर्म व त्वचा रोग' },
+    { id: 'ent', nameEn: 'ENT (कान नाक गला)', nameHi: 'कान, नाक व गला' }
   ];
 
   const filteredDoctors = ARA_DOCTORS.filter(doc => {
@@ -61,9 +68,10 @@ export const DoctorConcierge: React.FC = () => {
 
     const matchesSpecialty = 
       selectedSpecialty === 'all' ||
-      (selectedSpecialty === 'gynae' && doc.specialization.toLowerCase().includes('gynaecol')) ||
+      (selectedSpecialty === 'gynae' && (doc.specialization.toLowerCase().includes('gynaecol') || doc.specialization.toLowerCase().includes('women'))) ||
       (selectedSpecialty === 'ortho' && doc.specialization.toLowerCase().includes('orthopaed')) ||
       (selectedSpecialty === 'physician' && doc.specialization.toLowerCase().includes('physician')) ||
+      (selectedSpecialty === 'surgeon' && doc.specialization.toLowerCase().includes('surgeon')) ||
       (selectedSpecialty === 'cardio' && doc.specialization.toLowerCase().includes('cardiol')) ||
       (selectedSpecialty === 'pediatric' && doc.specialization.toLowerCase().includes('paediatric')) ||
       (selectedSpecialty === 'skin' && doc.specialization.toLowerCase().includes('dermatol')) ||
@@ -96,17 +104,29 @@ export const DoctorConcierge: React.FC = () => {
     setConciergeSuccess({ id: req.requestId, doctor: doctorName });
   };
 
+  const handleWhatsAppInstantBooking = (doctor: DoctorProfile) => {
+    const text = encodeURIComponent(
+      `Hello DoctorSathi Ara! 👋\n\nMujhe doctor ka appointment token (number) lagwana hai:\n` +
+      `👨‍⚕️ *Doctor:* ${doctor.name} (${doctor.specialization})\n` +
+      `🏥 *Clinic:* ${doctor.clinicName}, ${doctor.locality}\n` +
+      `⏰ *Queue Timing:* ${doctor.queueOpeningTime || 'Morning Line'}\n` +
+      `💰 *Doctor Fee:* ₹${doctor.consultationFee} | *Token Fee:* ₹${doctor.tokenBookingFee || 39}\n\n` +
+      `Kripya mera parcha lagwane ki process confirm karein.`
+    );
+    window.open(`https://wa.me/919835012345?text=${text}`, '_blank');
+  };
+
   const handleWhatsAppConfirmation = () => {
     if (!conciergeSuccess) return;
     const message = encodeURIComponent(
-      `🏥 *डॉक्टर अपॉइंटमेंट कंसीयज अनुरोध — रिद्धि सिद्धि सेवा*\n` +
-      `📋 *अनुरोध आईडी:* ${conciergeSuccess.id}\n` +
+      `🏥 *डॉक्टर अपॉइंटमेंट टोकन अनुरोध — DoctorSathi Ara*\n` +
+      `📋 *टोकन अनुरोध आईडी:* ${conciergeSuccess.id}\n` +
       `👨‍⚕️ *डॉक्टर:* ${conciergeSuccess.doctor}\n` +
-      `👤 *मरीज:* ${patientName} (${patientAge} Y / ${patientGender})\n` +
+      `👤 *मरीज:* ${patientName} (${patientAge} वर्ष / ${patientGender})\n` +
       `📱 *मोबाइल:* ${whatsappPhone}\n` +
       `📅 *तारीख:* ${preferredDate} (${preferredSlot})\n` +
       (symptomsNote ? `📝 *समस्या:* ${symptomsNote}\n\n` : '\n') +
-      `रिद्धि सिद्धि टीम डॉक्टर के क्लिनिक में नंबर लगवाकर 30 मिनट में आपको टोकन नंबर भेजेगी।`
+      `DoctorSathi टीम सुबह 6:00 AM क्लिनिक पर नंबर लगवाकर पर्चे का फोटो व सीरियल नंबर भेजेगी।`
     );
     window.open(`https://wa.me/919835012345?text=${message}`, '_blank');
   };
@@ -120,19 +140,64 @@ export const DoctorConcierge: React.FC = () => {
   return (
     <section className="app-container" id="doctors" style={{ padding: '3rem 1.25rem' }}>
       {/* Section Header */}
-      <div style={{ textAlign: 'center', maxWidth: '720px', margin: '0 auto 2.5rem auto' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: '#fef3c7', color: '#92400e', padding: '0.35rem 0.85rem', borderRadius: 'var(--radius-full)', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.75rem' }}>
+      <div style={{ textAlign: 'center', maxWidth: '780px', margin: '0 auto 2.5rem auto' }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0', padding: '0.4rem 0.95rem', borderRadius: 'var(--radius-full)', fontSize: '0.8125rem', fontWeight: 700, marginBottom: '0.75rem' }}>
           <Stethoscope size={16} />
-          <span>{language === 'hi' ? 'आरा डॉक्टर कंसीयज • लाइन लगाने से मुक्ति' : 'Ara Doctor Concierge • Zero Physical Queue'}</span>
+          <span>{language === 'hi' ? 'आरा डॉक्टर टोकन सेवा • लाइन लगाने की चिंता खत्म' : 'Ara Doctor Token Service • Zero Line Hassle'}</span>
         </div>
-        <h2 style={{ fontSize: '2.25rem', fontWeight: 800, color: 'var(--slate-900)', letterSpacing: '-0.02em', marginBottom: '0.75rem' }}>
-          {language === 'hi' ? 'आरा के प्रसिद्ध डॉक्टरों का नंबर लगवाएं' : 'Book Appointments with Top Ara Doctors'}
+        <h2 style={{ fontSize: 'clamp(1.75rem, 3vw, 2.5rem)', fontWeight: 800, color: 'var(--slate-900)', letterSpacing: '-0.02em', marginBottom: '0.75rem' }}>
+          {language === 'hi' ? 'आरा के प्रसिद्ध डॉक्टरों का नंबर लगवाएं' : 'Book Clinic Number / Tokens in Ara'}
         </h2>
-        <p style={{ fontSize: '1rem', color: 'var(--slate-600)' }}>
+        <p style={{ fontSize: '1.05rem', color: 'var(--slate-600)', lineHeight: 1.6 }}>
           {language === 'hi' 
-            ? 'क्लिनिक में घंटों लाइन में खड़े रहने की जरूरत नहीं! रिद्धि सिद्धि की टीम आपके लिए टोकन नंबर सुरक्षित करेगी।'
-            : 'Skip the 4-hour clinic queue. Our field team secures your OPD token and sends the confirmed receipt on WhatsApp.'}
+            ? 'सदर अस्पताल रोड, पकड़ी रोड, कतीरा मोड़, धरहरा, व रमना रोड के किसी भी स्पेशलिस्ट का नंबर (पर्चा) हमारी टीम सुबह 6 बजे लगवाएगी।'
+            : 'Get appointment tokens at clinics across Sadar Hospital, Pakari Road, Katira More, and Dharhara. Our field runners secure your serial early morning.'}
         </p>
+      </div>
+
+      {/* 3-Step Process Bento Strip */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem', marginBottom: '2.5rem' }}>
+        <div style={{ background: '#fff', border: '1px solid var(--slate-200)', borderRadius: 'var(--radius-lg)', padding: '1.25rem', display: 'flex', gap: '0.85rem', alignItems: 'flex-start', boxShadow: 'var(--shadow-sm)' }}>
+          <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--primary-100)', color: 'var(--primary-800)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, flexShrink: 0 }}>
+            1
+          </div>
+          <div>
+            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--slate-900)', marginBottom: '0.2rem' }}>
+              {language === 'hi' ? 'डॉक्टर चुनें व टोकन बुक करें' : 'Select Doctor & Book'}
+            </div>
+            <div style={{ fontSize: '0.825rem', color: 'var(--slate-600)' }}>
+              {language === 'hi' ? 'वेबसाइट या व्हाट्सएप पर डॉक्टर का नाम बताएं। सुविधा शुल्क सिर्फ ₹39।' : 'Pick your doctor on web or WhatsApp. Service fee only ₹39.'}
+            </div>
+          </div>
+        </div>
+
+        <div style={{ background: '#fff', border: '1px solid var(--slate-200)', borderRadius: 'var(--radius-lg)', padding: '1.25rem', display: 'flex', gap: '0.85rem', alignItems: 'flex-start', boxShadow: 'var(--shadow-sm)' }}>
+          <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#fef3c7', color: '#92400e', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, flexShrink: 0 }}>
+            2
+          </div>
+          <div>
+            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--slate-900)', marginBottom: '0.2rem' }}>
+              {language === 'hi' ? 'हमारी टीम 6:00 AM लाइन में लगेगी' : 'Team Queues at 6:00 AM'}
+            </div>
+            <div style={{ fontSize: '0.825rem', color: 'var(--slate-600)' }}>
+              {language === 'hi' ? 'हमारे आरा रनर क्लिनिक काउंटर पर जाकर आपका आधिकारिक पर्चा/टोकन कटाएंगे।' : 'Our local runner stands in compounder queue and secures the serial slip.'}
+            </div>
+          </div>
+        </div>
+
+        <div style={{ background: '#fff', border: '1px solid var(--slate-200)', borderRadius: 'var(--radius-lg)', padding: '1.25rem', display: 'flex', gap: '0.85rem', alignItems: 'flex-start', boxShadow: 'var(--shadow-sm)' }}>
+          <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#dcfce7', color: '#166534', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, flexShrink: 0 }}>
+            3
+          </div>
+          <div>
+            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--slate-900)', marginBottom: '0.2rem' }}>
+              {language === 'hi' ? 'पर्चा फोटो व समय व्हाट्सएप पर' : 'Token Photo & Time on WhatsApp'}
+            </div>
+            <div style={{ fontSize: '0.825rem', color: 'var(--slate-600)' }}>
+              {language === 'hi' ? 'सीरियल नंबर (उदा: #14) व क्लिनिक पहुंचने का सटीक समय आपको भेजा जाएगा।' : 'Receive token photo and exact clinic visit timing without waiting.'}
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Search & Specialty Filter */}
@@ -142,7 +207,7 @@ export const DoctorConcierge: React.FC = () => {
             <Search size={20} color="var(--slate-400)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
             <input 
               type="text" 
-              placeholder={language === 'hi' ? 'डॉक्टर का नाम, विशेषज्ञता या क्लिनिक खोजें (उदा: Dr. Sangeeta, Ortho, Ramna)...' : 'Search doctor name, specialty, or clinic in Ara...'}
+              placeholder={language === 'hi' ? 'डॉक्टर का नाम, विशेषज्ञता या क्लिनिक खोजें (उदा: Dr. Sangeeta, हड्डी रोग, Dharhara, Pakari)...' : 'Search doctor name, specialty, or clinic in Ara...'}
               value={searchDoctor}
               onChange={e => setSearchDoctor(e.target.value)}
               className="form-input"
@@ -155,7 +220,7 @@ export const DoctorConcierge: React.FC = () => {
             className="btn btn-outline-teal"
           >
             <Stethoscope size={18} />
-            <span>{language === 'hi' ? 'अन्य डॉक्टर का नंबर लगवाएं' : 'Request Other Doctor'}</span>
+            <span>{language === 'hi' ? 'अन्य डॉक्टर का नंबर लगवाएं' : 'Custom Doctor Request'}</span>
           </button>
         </div>
 
@@ -175,41 +240,46 @@ export const DoctorConcierge: React.FC = () => {
       </div>
 
       {/* Doctor Cards Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '1.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '1.5rem' }}>
         {filteredDoctors.map(doctor => (
           <div 
             key={doctor.id}
             style={{
               background: '#fff',
               border: '1px solid var(--slate-200)',
-              borderRadius: 'var(--radius-lg)',
+              borderRadius: 'var(--radius-xl)',
               padding: '1.5rem',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
               boxShadow: 'var(--shadow-sm)',
+              position: 'relative',
               transition: 'transform 0.2s ease, box-shadow 0.2s ease'
             }}
           >
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
-                <span className="badge badge-teal">
-                  {doctor.specialization}
+              {/* Specialty & Rating Row */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
+                <span className="badge badge-teal" style={{ fontWeight: 700, fontSize: '0.785rem' }}>
+                  {language === 'hi' ? doctor.specializationHi : doctor.specialization}
                 </span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.8rem', fontWeight: 700, color: 'var(--amber-700)' }}>
+                
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.8rem', fontWeight: 700, color: 'var(--amber-700)', background: '#fffbeb', padding: '0.2rem 0.5rem', borderRadius: 'var(--radius-full)' }}>
                   <Star size={14} fill="var(--amber-500)" color="var(--amber-500)" />
                   <span>{doctor.rating} ({doctor.reviewsCount})</span>
                 </div>
               </div>
 
-              <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--slate-900)', marginBottom: '0.2rem' }}>
+              {/* Doctor Name & Experience */}
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--slate-900)', marginBottom: '0.25rem' }}>
                 {doctor.name}
               </h3>
-              <div style={{ fontSize: '0.8rem', color: 'var(--slate-500)', marginBottom: '0.75rem' }}>
+              <div style={{ fontSize: '0.825rem', color: 'var(--slate-500)', marginBottom: '0.85rem' }}>
                 {doctor.degrees} • {doctor.experienceYears}+ {language === 'hi' ? 'वर्षों का अनुभव' : 'Yrs Exp'}
               </div>
 
-              <div style={{ fontSize: '0.85rem', color: 'var(--slate-700)', display: 'flex', flexDirection: 'column', gap: '0.4rem', marginBottom: '1.25rem' }}>
+              {/* Location & Timings */}
+              <div style={{ fontSize: '0.85rem', color: 'var(--slate-700)', display: 'flex', flexDirection: 'column', gap: '0.45rem', marginBottom: '1.25rem', background: 'var(--slate-50)', padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--slate-200)' }}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.4rem' }}>
                   <MapPin size={16} color="var(--primary-600)" style={{ flexShrink: 0, marginTop: '2px' }} />
                   <span><strong>{doctor.clinicName}:</strong> {doctor.locality}</span>
@@ -219,23 +289,48 @@ export const DoctorConcierge: React.FC = () => {
                   <Clock size={16} color="var(--slate-400)" style={{ flexShrink: 0 }} />
                   <span>{doctor.timings}</span>
                 </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#b45309', fontWeight: 600, fontSize: '0.8rem' }}>
+                  <Timer size={16} color="#d97706" style={{ flexShrink: 0 }} />
+                  <span>{doctor.queueOpeningTime || 'सुबह 6:30 AM लाइन शुरू'}</span>
+                </div>
               </div>
             </div>
 
-            {/* Price & Action */}
-            <div style={{ borderTop: '1px solid var(--slate-200)', paddingTop: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>{language === 'hi' ? 'परामर्श शुल्क (OPD Fee):' : 'Consultation Fee:'}</div>
-                <div style={{ fontWeight: 800, fontSize: '1.15rem', color: 'var(--slate-900)' }}>₹{doctor.consultationFee}</div>
+            {/* Fee & Action Buttons */}
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.85rem', borderTop: '1px solid var(--slate-200)', paddingTop: '0.85rem' }}>
+                <div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>{language === 'hi' ? 'डॉक्टर परामर्श फीस:' : 'Doctor OPD Fee:'}</div>
+                  <div style={{ fontWeight: 800, fontSize: '1.15rem', color: 'var(--slate-900)' }}>₹{doctor.consultationFee}</div>
+                </div>
+
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: '0.75rem', color: '#047857', fontWeight: 600 }}>{language === 'hi' ? 'टोकन बुकिंग चार्ज:' : 'Token Charge:'}</div>
+                  <div style={{ fontWeight: 800, fontSize: '1.15rem', color: 'var(--primary-700)' }}>₹{doctor.tokenBookingFee || 39}</div>
+                </div>
               </div>
 
-              <button 
-                onClick={() => setActiveModalDoctor(doctor)}
-                className="btn btn-primary"
-              >
-                <UserCheck size={18} />
-                <span>{language === 'hi' ? 'नंबर लगवाएं (Book Slot)' : 'Request Token'}</span>
-              </button>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                <button 
+                  onClick={() => handleWhatsAppInstantBooking(doctor)}
+                  className="btn btn-whatsapp btn-sm"
+                  style={{ width: '100%', fontWeight: 700 }}
+                  title="Instant WhatsApp Token"
+                >
+                  <MessageSquare size={16} />
+                  <span>{language === 'hi' ? 'व्हाट्सएप' : 'WhatsApp'}</span>
+                </button>
+
+                <button 
+                  onClick={() => setActiveModalDoctor(doctor)}
+                  className="btn btn-primary btn-sm"
+                  style={{ width: '100%', fontWeight: 700 }}
+                >
+                  <UserCheck size={16} />
+                  <span>{language === 'hi' ? 'फॉर्म भरें' : 'Book Slot'}</span>
+                </button>
+              </div>
             </div>
           </div>
         ))}
@@ -248,10 +343,10 @@ export const DoctorConcierge: React.FC = () => {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem', borderBottom: '1px solid var(--slate-200)', paddingBottom: '0.75rem' }}>
               <div>
                 <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--slate-900)' }}>
-                  {language === 'hi' ? 'डॉक्टर अपॉइंटमेंट कंसीयज अनुरोध' : 'Doctor Appointment Concierge'}
+                  {language === 'hi' ? 'डॉक्टर का नंबर (टोकन) लगवाएं' : 'Book Doctor Appointment Token'}
                 </h2>
-                <div style={{ fontSize: '0.8rem', color: 'var(--primary-700)', fontWeight: 600 }}>
-                  {activeModalDoctor ? `${activeModalDoctor.name} (${activeModalDoctor.clinicName})` : 'Custom Ara Doctor Request'}
+                <div style={{ fontSize: '0.825rem', color: 'var(--primary-700)', fontWeight: 700, marginTop: '0.2rem' }}>
+                  {activeModalDoctor ? `${activeModalDoctor.name} • ${activeModalDoctor.clinicName}` : 'Custom Ara Doctor Token Request'}
                 </div>
               </div>
               <button onClick={closeConciergeModal} className="btn btn-secondary btn-icon-only">
@@ -265,12 +360,12 @@ export const DoctorConcierge: React.FC = () => {
                   <CheckCircle2 size={36} />
                 </div>
                 <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--slate-900)', marginBottom: '0.4rem' }}>
-                  {language === 'hi' ? 'अनुरोध प्राप्त हुआ!' : 'Request Queued for Ground Staff!'}
+                  {language === 'hi' ? 'अनुरोध प्राप्त हुआ!' : 'Token Request Queued!'}
                 </h3>
-                <p style={{ fontSize: '0.9rem', color: 'var(--slate-600)', marginBottom: '1.5rem' }}>
+                <p style={{ fontSize: '0.9rem', color: 'var(--slate-600)', marginBottom: '1.5rem', lineHeight: 1.5 }}>
                   {language === 'hi'
-                    ? `हमारी आरा फील्ड टीम ${conciergeSuccess.doctor} के क्लिनिक में आपका सीरियल टोकन बुक करके 30 मिनट में व्हाट्सएप पर रसीद भेजेगी।`
-                    : `Our Ara team will secure your serial token at ${conciergeSuccess.doctor}'s clinic and WhatsApp you the confirmed receipt.`}
+                    ? `हमारी आरा फील्ड टीम ${conciergeSuccess.doctor} के क्लिनिक पर सुबह 6:00 AM लाइन में लगकर आपका टोकन सुरक्षित करेगी और पर्चे का फोटो आपके व्हाट्सएप पर भेजेगी।`
+                    : `Our Ara ground staff will secure your token slip at ${conciergeSuccess.doctor}'s clinic at 6:00 AM and WhatsApp you the photo.`}
                 </p>
 
                 <button 
@@ -279,7 +374,7 @@ export const DoctorConcierge: React.FC = () => {
                   style={{ width: '100%', marginBottom: '0.75rem' }}
                 >
                   <Send size={18} />
-                  <span>{language === 'hi' ? 'व्हाट्सएप पर स्टेटस देखें' : 'Open WhatsApp Receipt'}</span>
+                  <span>{language === 'hi' ? 'व्हाट्सएप पर टोकन स्टेटस देखें' : 'Confirm on WhatsApp'}</span>
                 </button>
 
                 <button onClick={closeConciergeModal} className="btn btn-secondary" style={{ width: '100%' }}>
@@ -307,7 +402,7 @@ export const DoctorConcierge: React.FC = () => {
                       <input 
                         type="text" 
                         className="form-input" 
-                        placeholder="e.g. Hospital Road / Nawada"
+                        placeholder="e.g. Hospital Road / Pakari"
                         value={customClinicArea}
                         onChange={e => setCustomClinicArea(e.target.value)}
                         required
@@ -389,11 +484,11 @@ export const DoctorConcierge: React.FC = () => {
                   />
                 </div>
 
-                <div style={{ background: '#f0fdfa', border: '1px solid var(--primary-200)', padding: '0.85rem', borderRadius: 'var(--radius-md)', fontSize: '0.8rem', color: 'var(--primary-900)', marginBottom: '1.25rem' }}>
-                  ⚡ <strong>{language === 'hi' ? 'कंसीयज प्रक्रिया:' : 'How it works:'}</strong>{' '}
+                <div style={{ background: '#f0fdfa', border: '1px solid var(--primary-200)', padding: '0.85rem', borderRadius: 'var(--radius-md)', fontSize: '0.825rem', color: 'var(--primary-900)', marginBottom: '1.25rem' }}>
+                  ⚡ <strong>{language === 'hi' ? 'टोकन बुकिंग फीस: ₹39 मात्र' : 'Convenience Fee: ₹39 only'}</strong><br/>
                   {language === 'hi' 
-                    ? 'हमारी टीम क्लिनिक में जाकर टोकन नंबर हासिल करेगी और डॉक्टर के परामर्श शुल्क की रसीद आपके व्हाट्सएप पर भेजेगी।'
-                    : 'Our field assistant visits the clinic, secures your physical serial token, and sends confirmation via WhatsApp.'}
+                    ? 'डॉक्टर की मूल फीस (OPD Fee) आप क्लिनिक पहुंचकर सीधे डॉक्टर के काउंटर पर देंगे।'
+                    : 'The doctor\'s direct OPD fee will be paid directly at the clinic counter during consultation.'}
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
@@ -402,7 +497,7 @@ export const DoctorConcierge: React.FC = () => {
                   </button>
                   <button type="submit" className="btn btn-primary btn-lg">
                     <UserCheck size={18} />
-                    <span>{language === 'hi' ? 'टोकन का अनुरोध भेजें' : 'Submit Token Request'}</span>
+                    <span>{language === 'hi' ? 'टोकन का अनुरोध भेजें (₹39)' : 'Submit Token Request (₹39)'}</span>
                   </button>
                 </div>
               </form>

@@ -68,7 +68,7 @@ export const StaffOpsDrawer: React.FC = () => {
                 <span className="badge badge-emerald">LIVE SYNC</span>
               </div>
               <div style={{ fontSize: '0.8rem', color: 'var(--slate-500)' }}>
-                Riddhi Sidhi Janch Lab (Ashok's Team) • Change sample status to update patient tracking in real-time
+                DoctorSathi Ara Ground Staff & Queue Console • Update tokens & test tracking in real-time
               </div>
             </div>
           </div>

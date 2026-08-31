@@ -27,11 +27,11 @@ export const UploadPrescriptionModal: React.FC = () => {
     const name = patientName || 'Patient';
     const addr = address ? ` | Address: ${address}, Ara` : '';
     const message = encodeURIComponent(
-      `नमस्ते रिद्धि सिद्धि जांच लैब (Ara) 🙏\n` +
-      `मुझे डॉक्टर के पर्चे के अनुसार टेस्ट कराने हैं।\n` +
+      `नमस्ते DoctorSathi Ara 🙏\n` +
+      `मुझे डॉक्टर के पर्चे के अनुसार टोकन / टेस्ट बुक करना है।\n` +
       `👤 नाम: ${name}\n` +
       `📱 फोन: ${phone}${addr}\n` +
-      `कृपया रेट और होम कलेक्शन का समय बताएं।`
+      `कृपया पर्चा देखकर आगे की प्रक्रिया बताएं।`
     );
 
     // Open WhatsApp URL

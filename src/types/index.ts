@@ -61,6 +61,9 @@ export interface DoctorProfile {
   clinicName: string;
   locality: string;
   consultationFee: number;
+  tokenBookingFee?: number; // convenience fee charged by DoctorSathi, default 39
+  queueOpeningTime?: string; // e.g. "06:30 AM"
+  availabilityStatus?: 'AVAILABLE_TODAY' | 'BOOKING_TOMORROW' | 'FAST_FILLING';
   timings: string;
   closedOn: string;
   phoneContact?: string;

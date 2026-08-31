@@ -18,7 +18,7 @@ export const VerificationModal: React.FC = () => {
 
   useEffect(() => {
     if (activeVerificationBooking) {
-      const verifyUrl = `https://riddhisidhilab.in/verify?id=${activeVerificationBooking.bookingId}&ts=${Date.now()}`;
+      const verifyUrl = `https://rsl.ai-workflows.cloud/verify?id=${activeVerificationBooking.bookingId}&ts=${Date.now()}`;
       QRCode.toDataURL(verifyUrl, { width: 160, margin: 1 })
         .then(url => setQrDataUrl(url))
         .catch(err => console.error(err));
@@ -47,7 +47,7 @@ export const VerificationModal: React.FC = () => {
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                 <span style={{ fontWeight: 800, fontSize: '1.15rem', color: 'var(--slate-900)' }}>
-                  RIDDHI SIDHI JANCH LAB
+                  DOCTORSATHI ARA
                 </span>
                 <span className="badge badge-emerald">VERIFIED</span>
               </div>

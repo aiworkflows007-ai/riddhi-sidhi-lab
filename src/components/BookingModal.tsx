@@ -133,7 +133,7 @@ export const BookingModal: React.FC = () => {
       `📅 *समय:* ${preferredDate} (${preferredSlot})\n` +
       `💰 *कुल देय राशि:* ₹${finalTotal} (${paymentMode === 'PAID' ? 'Online Paid' : 'Pay on Sample Pickup'})\n\n` +
       `📱 रिपोर्ट स्टेटस ट्रैक करने के लिए:\n` +
-      `https://riddhisidhilab.in/track?id=${createdBookingId}`
+      `https://rsl.ai-workflows.cloud/#tracker`
     );
 
     window.open(`https://wa.me/919835012345?text=${message}`, '_blank');
@@ -157,7 +157,7 @@ export const BookingModal: React.FC = () => {
               {step === 'confirmation' && (language === 'hi' ? 'बुकिंग सफलतापूर्वक दर्ज!' : 'Booking Confirmed!')}
             </h2>
             <div style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>
-              {language === 'hi' ? 'रिद्धि सिद्धि जांच लैब • सदर अस्पताल रोड, आरा' : 'Riddhi Sidhi Janch Lab, Ara'}
+              {language === 'hi' ? 'DoctorSathi Ara • डायग्नोस्टिक्स व ब्लड टेस्ट' : 'DoctorSathi Ara • Diagnostics & Lab Tests'}
             </div>
           </div>
           <button onClick={handleClose} className="btn btn-secondary btn-icon-only">
@@ -525,8 +525,8 @@ export const BookingModal: React.FC = () => {
             </h3>
             <p style={{ fontSize: '0.9rem', color: 'var(--slate-600)', marginBottom: '1.25rem' }}>
               {language === 'hi' 
-                ? 'आपकी बुकिंग रिद्धि सिद्धि जांच लैब (आरा) के सिस्टम में दर्ज हो चुकी है।'
-                : 'Your booking has been received by Riddhi Sidhi Janch Lab, Ara.'}
+                ? 'आपकी बुकिंग DoctorSathi Ara के सिस्टम में दर्ज हो चुकी है।'
+                : 'Your booking has been received by DoctorSathi Ara.'}
             </p>
 
             {/* Booking Card */}
