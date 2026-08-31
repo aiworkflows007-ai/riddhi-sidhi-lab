@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 
 export const DoctorConcierge: React.FC = () => {
-  const { language, createDoctorRequest } = useLab();
+  const { language, openPaymentModal, setIsWhatsAppBotOpen } = useLab();
 
   const [searchDoctor, setSearchDoctor] = useState('');
   const [selectedSpecialty, setSelectedSpecialty] = useState<string>('all');
@@ -42,7 +42,6 @@ export const DoctorConcierge: React.FC = () => {
   const [symptomsNote, setSymptomsNote] = useState('');
   const [customDoctorName, setCustomDoctorName] = useState('');
   const [customClinicArea, setCustomClinicArea] = useState('');
-  const [conciergeSuccess, setConciergeSuccess] = useState<{ id: string; doctor: string } | null>(null);
 
   const specialties = [
     { id: 'all', nameEn: 'All Specialties', nameHi: 'सभी विशेषज्ञ' },
@@ -82,12 +81,21 @@ export const DoctorConcierge: React.FC = () => {
 
   const handleConciergeSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!patientName.trim() || !whatsappPhone.trim()) {
+      alert(language === 'hi' ? 'कृपया मरीज का नाम और मोबाइल नंबर दर्ज करें।' : 'Please enter patient name and mobile number.');
+      return;
+    }
+
     const doctorName = activeModalDoctor ? activeModalDoctor.name : (customDoctorName || 'Ara Specialist');
     const doctorSpecialization = activeModalDoctor ? activeModalDoctor.specialization : 'Specialist Consultation';
     const clinicName = activeModalDoctor ? activeModalDoctor.clinicName : (customClinicArea || 'Ara Clinic');
     const locality = activeModalDoctor ? activeModalDoctor.locality : 'Ara, Bihar';
+    const tokenBookingFee = activeModalDoctor?.tokenBookingFee || 39;
 
-    const req = createDoctorRequest({
+    setActiveModalDoctor(null);
+    setIsCustomModalOpen(false);
+
+    openPaymentModal({
       patientName,
       whatsappPhone,
       patientAge: parseInt(patientAge) || 35,
@@ -98,10 +106,25 @@ export const DoctorConcierge: React.FC = () => {
       locality,
       preferredDate,
       preferredSlot,
-      symptomsNote
+      symptomsNote,
+      tokenBookingFee
     });
+  };
 
-    setConciergeSuccess({ id: req.requestId, doctor: doctorName });
+  const handleQuickDoctorPay = (doctor: DoctorProfile) => {
+    openPaymentModal({
+      patientName: patientName || 'Patient Name',
+      whatsappPhone: whatsappPhone || '7999614511',
+      patientAge: 40,
+      patientGender: 'Male',
+      doctorName: doctor.name,
+      doctorSpecialization: doctor.specialization,
+      clinicName: doctor.clinicName,
+      locality: doctor.locality,
+      preferredDate: preferredDate,
+      preferredSlot: 'Morning OPD Line (06:00 AM)',
+      tokenBookingFee: doctor.tokenBookingFee || 39
+    });
   };
 
   const handleWhatsAppInstantBooking = (doctor: DoctorProfile) => {
@@ -116,25 +139,9 @@ export const DoctorConcierge: React.FC = () => {
     window.open(`https://wa.me/917999614511?text=${text}`, '_blank');
   };
 
-  const handleWhatsAppConfirmation = () => {
-    if (!conciergeSuccess) return;
-    const message = encodeURIComponent(
-      `🏥 *डॉक्टर अपॉइंटमेंट टोकन अनुरोध — DoctorSathi Ara*\n` +
-      `📋 *टोकन अनुरोध आईडी:* ${conciergeSuccess.id}\n` +
-      `👨‍⚕️ *डॉक्टर:* ${conciergeSuccess.doctor}\n` +
-      `👤 *मरीज:* ${patientName} (${patientAge} वर्ष / ${patientGender})\n` +
-      `📱 *मोबाइल:* ${whatsappPhone}\n` +
-      `📅 *तारीख:* ${preferredDate} (${preferredSlot})\n` +
-      (symptomsNote ? `📝 *समस्या:* ${symptomsNote}\n\n` : '\n') +
-      `DoctorSathi टीम सुबह 6:00 AM क्लिनिक पर नंबर लगवाकर पर्चे का फोटो व सीरियल नंबर भेजेगी।`
-    );
-    window.open(`https://wa.me/917999614511?text=${message}`, '_blank');
-  };
-
   const closeConciergeModal = () => {
     setActiveModalDoctor(null);
     setIsCustomModalOpen(false);
-    setConciergeSuccess(null);
   };
 
   return (
@@ -315,20 +322,20 @@ export const DoctorConcierge: React.FC = () => {
                 <button 
                   onClick={() => handleWhatsAppInstantBooking(doctor)}
                   className="btn btn-whatsapp btn-sm"
-                  style={{ width: '100%', fontWeight: 700 }}
+                  style={{ width: '100%', fontWeight: 800 }}
                   title="Instant WhatsApp Token"
                 >
                   <MessageSquare size={16} />
-                  <span>{language === 'hi' ? 'व्हाट्सएप' : 'WhatsApp'}</span>
+                  <span>{language === 'hi' ? 'WhatsApp' : 'WhatsApp'}</span>
                 </button>
 
                 <button 
-                  onClick={() => setActiveModalDoctor(doctor)}
+                  onClick={() => handleQuickDoctorPay(doctor)}
                   className="btn btn-primary btn-sm"
-                  style={{ width: '100%', fontWeight: 700 }}
+                  style={{ width: '100%', fontWeight: 800 }}
                 >
-                  <UserCheck size={16} />
-                  <span>{language === 'hi' ? 'फॉर्म भरें' : 'Book Slot'}</span>
+                  <CheckCircle2 size={16} />
+                  <span>{language === 'hi' ? '⚡ ₹39 Book' : '⚡ Pay ₹39'}</span>
                 </button>
               </div>
             </div>
@@ -354,154 +361,153 @@ export const DoctorConcierge: React.FC = () => {
               </button>
             </div>
 
-            {conciergeSuccess ? (
-              <div style={{ textAlign: 'center', padding: '1.5rem 0' }}>
-                <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: '#dcfce7', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem auto' }}>
-                  <CheckCircle2 size={36} />
-                </div>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--slate-900)', marginBottom: '0.4rem' }}>
-                  {language === 'hi' ? 'अनुरोध प्राप्त हुआ!' : 'Token Request Queued!'}
-                </h3>
-                <p style={{ fontSize: '0.9rem', color: 'var(--slate-600)', marginBottom: '1.5rem', lineHeight: 1.5 }}>
-                  {language === 'hi'
-                    ? `हमारी आरा फील्ड टीम ${conciergeSuccess.doctor} के क्लिनिक पर सुबह 6:00 AM लाइन में लगकर आपका टोकन सुरक्षित करेगी और पर्चे का फोटो आपके व्हाट्सएप पर भेजेगी।`
-                    : `Our Ara ground staff will secure your token slip at ${conciergeSuccess.doctor}'s clinic at 6:00 AM and WhatsApp you the photo.`}
-                </p>
-
-                <button 
-                  onClick={handleWhatsAppConfirmation}
-                  className="btn btn-whatsapp btn-lg"
-                  style={{ width: '100%', marginBottom: '0.75rem' }}
-                >
-                  <Send size={18} />
-                  <span>{language === 'hi' ? 'व्हाट्सएप पर टोकन स्टेटस देखें' : 'Confirm on WhatsApp'}</span>
-                </button>
-
-                <button onClick={closeConciergeModal} className="btn btn-secondary" style={{ width: '100%' }}>
-                  {language === 'hi' ? 'पोर्टल पर लौटें' : 'Done'}
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handleConciergeSubmit}>
-                {isCustomModalOpen && !activeModalDoctor && (
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                    <div className="form-group">
-                      <label className="form-label">{language === 'hi' ? 'डॉक्टर का नाम:' : 'Doctor Name:'} *</label>
-                      <input 
-                        type="text" 
-                        className="form-input" 
-                        placeholder="e.g. Dr. A. K. Sinha"
-                        value={customDoctorName}
-                        onChange={e => setCustomDoctorName(e.target.value)}
-                        required
-                      />
-                    </div>
-
-                    <div className="form-group">
-                      <label className="form-label">{language === 'hi' ? 'क्लिनिक / इलाका (Ara):' : 'Clinic / Area:'} *</label>
-                      <input 
-                        type="text" 
-                        className="form-input" 
-                        placeholder="e.g. Hospital Road / Pakari"
-                        value={customClinicArea}
-                        onChange={e => setCustomClinicArea(e.target.value)}
-                        required
-                      />
-                    </div>
-                  </div>
-                )}
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '1rem' }}>
+            <form onSubmit={handleConciergeSubmit}>
+              {isCustomModalOpen && !activeModalDoctor && (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
                   <div className="form-group">
-                    <label className="form-label">{language === 'hi' ? 'मरीज का नाम:' : 'Patient Name:'} *</label>
+                    <label className="form-label">{language === 'hi' ? 'डॉक्टर का नाम:' : 'Doctor Name:'} *</label>
                     <input 
                       type="text" 
                       className="form-input" 
-                      placeholder="e.g. Sunil Tiwari"
-                      value={patientName}
-                      onChange={e => setPatientName(e.target.value)}
+                      placeholder="e.g. Dr. A. K. Sinha"
+                      value={customDoctorName}
+                      onChange={e => setCustomDoctorName(e.target.value)}
                       required
                     />
                   </div>
 
                   <div className="form-group">
-                    <label className="form-label">{language === 'hi' ? 'व्हाट्सएप फोन नंबर:' : 'WhatsApp Mobile:'} *</label>
+                    <label className="form-label">{language === 'hi' ? 'क्लिनिक / इलाका (Ara):' : 'Clinic / Area:'} *</label>
                     <input 
-                      type="tel" 
+                      type="text" 
                       className="form-input" 
-                      placeholder="10-digit mobile"
-                      value={whatsappPhone}
-                      onChange={e => setWhatsappPhone(e.target.value)}
+                      placeholder="e.g. Hospital Road / Pakari"
+                      value={customClinicArea}
+                      onChange={e => setCustomClinicArea(e.target.value)}
                       required
                     />
                   </div>
                 </div>
+              )}
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  <div className="form-group">
-                    <label className="form-label">{language === 'hi' ? 'उम्र:' : 'Age:'} *</label>
-                    <input 
-                      type="number" 
-                      className="form-input" 
-                      value={patientAge}
-                      onChange={e => setPatientAge(e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">{language === 'hi' ? 'पसंदीदा तारीख:' : 'Preferred Date:'} *</label>
-                    <input 
-                      type="date" 
-                      className="form-input" 
-                      value={preferredDate}
-                      onChange={e => setPreferredDate(e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
-
+              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '1rem' }}>
                 <div className="form-group">
-                  <label className="form-label">{language === 'hi' ? 'पसंदीदा शिफ्ट / समय:' : 'Preferred Session:'}</label>
-                  <select 
-                    className="form-select"
-                    value={preferredSlot}
-                    onChange={e => setPreferredSlot(e.target.value)}
-                  >
-                    <option value="Morning OPD (09:00 AM - 01:00 PM)">Morning OPD (09:00 AM - 01:00 PM)</option>
-                    <option value="Evening OPD (05:00 PM - 08:00 PM)">Evening OPD (05:00 PM - 08:00 PM)</option>
-                  </select>
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">{language === 'hi' ? 'बीमारी / लक्षण का संक्षिप्त विवरण (वैकल्पिक):' : 'Problem Brief (Optional):'}</label>
+                  <label className="form-label">{language === 'hi' ? 'मरीज का नाम:' : 'Patient Name:'} *</label>
                   <input 
                     type="text" 
                     className="form-input" 
-                    placeholder="e.g. Joint pain with fever for 3 days"
-                    value={symptomsNote}
-                    onChange={e => setSymptomsNote(e.target.value)}
+                    placeholder={language === 'hi' ? 'उदा: सुरेश शर्मा' : 'e.g. Suresh Sharma'}
+                    value={patientName}
+                    onChange={e => setPatientName(e.target.value)}
+                    required
                   />
                 </div>
 
-                <div style={{ background: '#f0fdfa', border: '1px solid var(--primary-200)', padding: '0.85rem', borderRadius: 'var(--radius-md)', fontSize: '0.825rem', color: 'var(--primary-900)', marginBottom: '1.25rem' }}>
-                  ⚡ <strong>{language === 'hi' ? 'टोकन बुकिंग फीस: ₹39 मात्र' : 'Convenience Fee: ₹39 only'}</strong><br/>
-                  {language === 'hi' 
-                    ? 'डॉक्टर की मूल फीस (OPD Fee) आप क्लिनिक पहुंचकर सीधे डॉक्टर के काउंटर पर देंगे।'
-                    : 'The doctor\'s direct OPD fee will be paid directly at the clinic counter during consultation.'}
+                <div className="form-group">
+                  <label className="form-label">{language === 'hi' ? 'व्हाट्सएप मोबाइल नंबर:' : 'WhatsApp Mobile:'} *</label>
+                  <input 
+                    type="tel" 
+                    className="form-input" 
+                    placeholder="10-digit mobile"
+                    value={whatsappPhone}
+                    onChange={e => setWhatsappPhone(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                <div className="form-group">
+                  <label className="form-label">{language === 'hi' ? 'उम्र (वर्ष):' : 'Age (Yrs):'}</label>
+                  <input 
+                    type="number" 
+                    className="form-input" 
+                    value={patientAge}
+                    onChange={e => setPatientAge(e.target.value)}
+                    min="1" 
+                    max="110"
+                  />
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
-                  <button type="button" onClick={closeConciergeModal} className="btn btn-secondary">
-                    {language === 'hi' ? 'रद्द करें' : 'Cancel'}
-                  </button>
-                  <button type="submit" className="btn btn-primary btn-lg">
-                    <UserCheck size={18} />
-                    <span>{language === 'hi' ? 'टोकन का अनुरोध भेजें (₹39)' : 'Submit Token Request (₹39)'}</span>
-                  </button>
+                <div className="form-group">
+                  <label className="form-label">{language === 'hi' ? 'लिंग:' : 'Gender:'}</label>
+                  <select 
+                    value={patientGender}
+                    onChange={e => setPatientGender(e.target.value)}
+                    className="form-select"
+                  >
+                    <option value="Male">Male (पुरुष)</option>
+                    <option value="Female">Female (महिला)</option>
+                    <option value="Child">Child (बच्चा)</option>
+                  </select>
                 </div>
-              </form>
-            )}
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                <div className="form-group">
+                  <label className="form-label">{language === 'hi' ? 'अपॉइंटमेंट की तारीख:' : 'Preferred Date:'}</label>
+                  <input 
+                    type="date" 
+                    className="form-input" 
+                    value={preferredDate}
+                    onChange={e => setPreferredDate(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <div className="form-group">
+                    <label className="form-label">{language === 'hi' ? 'पसंदीदा समय (Slot):' : 'Slot:'}</label>
+                    <select 
+                      value={preferredSlot}
+                      onChange={e => setPreferredSlot(e.target.value)}
+                      className="form-select"
+                    >
+                      <option value="Morning OPD (09:00 AM - 01:00 PM)">Morning OPD (09:00 AM - 01:00 PM)</option>
+                      <option value="Evening OPD (05:00 PM - 08:30 PM)">Evening OPD (05:00 PM - 08:30 PM)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+                <label className="form-label">{language === 'hi' ? 'लक्षण या कोई संदेश (वैकल्पिक):' : 'Problem Brief (Optional):'}</label>
+                <input 
+                  type="text" 
+                  className="form-input" 
+                  placeholder="e.g. Joint pain / Follow up"
+                  value={symptomsNote}
+                  onChange={e => setSymptomsNote(e.target.value)}
+                />
+              </div>
+
+              <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 'var(--radius-md)', padding: '0.85rem 1rem', marginBottom: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <div style={{ fontWeight: 700, color: '#166534', fontSize: '0.875rem' }}>
+                    {language === 'hi' ? 'टोकन सुविधा शुल्क:' : 'Queue Concierge Fee:'}
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--slate-600)' }}>
+                    6:00 AM queue runner + WhatsApp slip photo
+                  </div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: '1.35rem', fontWeight: 900, color: '#15803d' }}>
+                    ₹{activeModalDoctor?.tokenBookingFee || 39}
+                  </div>
+                  <div style={{ fontSize: '0.7rem', color: '#166534', fontWeight: 600 }}>100% Auto-Refund Protected</div>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+                <button type="button" onClick={closeConciergeModal} className="btn btn-secondary">
+                  {language === 'hi' ? 'रद्द करें' : 'Cancel'}
+                </button>
+                <button type="submit" className="btn btn-primary btn-lg" style={{ fontWeight: 900 }}>
+                  <CheckCircle2 size={18} />
+                  <span>{language === 'hi' ? '⚡ ₹39 Pay & Book' : '⚡ Pay ₹39 & Book'}</span>
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

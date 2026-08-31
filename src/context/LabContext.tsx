@@ -1,82 +1,60 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { DiagnosticTest, TestBooking, DoctorConciergeRequest, ReportStatus, ConciergeStatus } from '../types';
-import { DIAGNOSTIC_TESTS } from '../data/tests';
-import { INITIAL_DEMO_BOOKINGS } from '../data/localities';
+import { DoctorConciergeRequest, ConciergeStatus } from '../types';
+
+export interface PaymentBookingData {
+  patientName: string;
+  whatsappPhone: string;
+  patientAge: number;
+  patientGender: string;
+  doctorName: string;
+  doctorSpecialization: string;
+  clinicName: string;
+  locality: string;
+  preferredDate: string;
+  preferredSlot: string;
+  symptomsNote?: string;
+  tokenBookingFee?: number;
+}
 
 interface LabContextType {
   language: 'en' | 'hi';
   toggleLanguage: () => void;
   setLanguage: (lang: 'en' | 'hi') => void;
-  
-  // Cart
-  cart: DiagnosticTest[];
-  addToCart: (test: DiagnosticTest) => void;
-  removeFromCart: (testId: string) => void;
-  clearCart: () => void;
-  isInCart: (testId: string) => boolean;
-  cartTotalMrp: number;
-  cartTotalPayable: number;
-  cartDiscount: number;
-
-  // Bookings Store (Simulating Google Sheet Store of Record)
-  bookings: TestBooking[];
-  createBooking: (bookingData: Omit<TestBooking, 'bookingId' | 'createdAt' | 'statusHistory' | 'reportStatus'>) => TestBooking;
-  updateBookingStatus: (bookingId: string, newStatus: ReportStatus, note?: string) => void;
-  getBookingById: (bookingId: string) => TestBooking | undefined;
-  getBookingsByPhone: (phone: string) => TestBooking[];
 
   // Doctor Concierge Store
   doctorRequests: DoctorConciergeRequest[];
   createDoctorRequest: (requestData: Omit<DoctorConciergeRequest, 'requestId' | 'createdAt' | 'status'>) => DoctorConciergeRequest;
   updateDoctorRequestStatus: (requestId: string, status: ConciergeStatus, tokenNo?: string, confirmedTime?: string) => void;
+  releaseTokenSlip: (requestId: string, tokenNo: string, confirmedTime: string, notes?: string) => void;
+  autoRefundToken: (requestId: string, reason: string) => void;
 
-  // Active Modals & Views
-  isSymptomModalOpen: boolean;
-  setIsSymptomModalOpen: (open: boolean) => void;
-  isPrescriptionModalOpen: boolean;
-  setIsPrescriptionModalOpen: (open: boolean) => void;
-  isBookingModalOpen: boolean;
-  setIsBookingModalOpen: (open: boolean) => void;
+  // Payment Modal
+  isPaymentModalOpen: boolean;
+  paymentModalData: PaymentBookingData | null;
+  openPaymentModal: (data: PaymentBookingData) => void;
+  closePaymentModal: () => void;
+
+  // WhatsApp Bot Modal
+  isWhatsAppBotOpen: boolean;
+  setIsWhatsAppBotOpen: (open: boolean) => void;
+
+  // Staff Ops Drawer
   isStaffOpsOpen: boolean;
   setIsStaffOpsOpen: (open: boolean) => void;
-  selectedTestForDetail: DiagnosticTest | null;
-  setSelectedTestForDetail: (test: DiagnosticTest | null) => void;
-  activeVerificationBooking: TestBooking | null;
-  setActiveVerificationBooking: (booking: TestBooking | null) => void;
 
   // Navigation
-  activeTab: 'home' | 'catalogue' | 'tracker' | 'doctors';
-  setActiveTab: (tab: 'home' | 'catalogue' | 'tracker' | 'doctors') => void;
+  activeTab: 'home' | 'doctors' | 'tracker';
+  setActiveTab: (tab: 'home' | 'doctors' | 'tracker') => void;
 }
 
 const LabContext = createContext<LabContextType | undefined>(undefined);
 
-const BOOKINGS_STORAGE_KEY = 'rsjl_bookings_store_v1';
-const DOC_REQUESTS_STORAGE_KEY = 'rsjl_doc_requests_store_v1';
-const CART_STORAGE_KEY = 'rsjl_cart_store_v1';
+const DOC_REQUESTS_STORAGE_KEY = 'rsjl_doc_requests_store_v2';
 const LANG_STORAGE_KEY = 'rsjl_lang_preference';
 
 export const LabProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [language, setLanguageState] = useState<'en' | 'hi'>(() => {
     return (localStorage.getItem(LANG_STORAGE_KEY) as 'en' | 'hi') || 'en';
-  });
-
-  const [cart, setCart] = useState<DiagnosticTest[]>(() => {
-    try {
-      const saved = localStorage.getItem(CART_STORAGE_KEY);
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
-
-  const [bookings, setBookings] = useState<TestBooking[]>(() => {
-    try {
-      const saved = localStorage.getItem(BOOKINGS_STORAGE_KEY);
-      return saved ? JSON.parse(saved) : INITIAL_DEMO_BOOKINGS;
-    } catch {
-      return INITIAL_DEMO_BOOKINGS;
-    }
   });
 
   const [doctorRequests, setDoctorRequests] = useState<DoctorConciergeRequest[]>(() => {
@@ -94,13 +72,67 @@ export const LabProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           doctorSpecialization: 'Gynaecologist & Infertility Specialist',
           clinicName: 'R.L. Memorial Hospital',
           locality: 'Ramna Road, Near Katira More, Ara',
-          preferredDate: '2026-08-17',
+          preferredDate: '2026-09-01',
           preferredSlot: 'Morning (10:00 AM - 01:00 PM)',
-          symptomsNote: 'ANC Follow-up consultation request',
+          symptomsNote: 'Follow-up consultation request',
           status: 'TOKEN_CONFIRMED',
+          tokenBookingFee: 39,
+          paymentStatus: 'PAID',
+          paymentMethod: 'UPI_PHONEPE',
+          paymentUtr: 'UPI-49281920-8912',
+          paidAt: '08:30 AM, 31-Aug',
           assignedRunner: 'Raju (Ara Field Runner)',
           confirmedTokenNumber: 'Serial #14',
-          confirmedTime: '11:15 AM, 17-Aug-2026'
+          confirmedTime: '10:30 AM, Today',
+          slipReleasedAt: new Date(Date.now() - 3600 * 1000).toISOString(),
+          refundStatus: 'NOT_APPLICABLE'
+        },
+        {
+          requestId: 'DOC-ARA-2026-732',
+          createdAt: new Date(Date.now() - 5 * 3600 * 1000).toISOString(),
+          patientName: 'Anil Kumar Rai',
+          whatsappPhone: '7999614511',
+          patientAge: 52,
+          patientGender: 'Male',
+          doctorName: 'Dr. Vikas Singh',
+          doctorSpecialization: 'Orthopaedic Surgeon',
+          clinicName: 'Aastha Hospital',
+          locality: 'Pakari Road, Ara',
+          preferredDate: '2026-09-01',
+          preferredSlot: 'Evening (05:00 PM - 08:00 PM)',
+          status: 'LINE_QUEUED',
+          tokenBookingFee: 39,
+          paymentStatus: 'PAID',
+          paymentMethod: 'UPI_GPAY',
+          paymentUtr: 'UPI-38910281-7321',
+          paidAt: '06:15 AM, 31-Aug',
+          assignedRunner: 'Raju (Ara Field Runner)',
+          refundStatus: 'NOT_APPLICABLE'
+        },
+        {
+          requestId: 'DOC-ARA-2026-614',
+          createdAt: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
+          patientName: 'Pooja Kumari',
+          whatsappPhone: '9431029381',
+          patientAge: 29,
+          patientGender: 'Female',
+          doctorName: 'Dr. R.K. Singh',
+          doctorSpecialization: 'Senior Physician & Diabetologist',
+          clinicName: 'Dharhara Clinic',
+          locality: 'Dharhara / Maula Bagh, Ara',
+          preferredDate: '2026-08-30',
+          preferredSlot: 'Morning OPD',
+          status: 'UNAVAILABLE_REFUNDED',
+          tokenBookingFee: 39,
+          paymentStatus: 'REFUNDED',
+          paymentMethod: 'UPI_PAYTM',
+          paymentUtr: 'UPI-10928371-6140',
+          paidAt: 'Yesterday, 06:10 AM',
+          refundStatus: 'AUTO_REFUNDED',
+          refundAmount: 39,
+          refundUtr: 'REF-UPI-2026-98124',
+          refundedAt: 'Yesterday, 07:15 AM',
+          refundReason: 'Doctor emergency surgery schedule / Clinic token quota full'
         }
       ];
     } catch {
@@ -109,25 +141,15 @@ export const LabProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
 
   // Modals & Navigation
-  const [isSymptomModalOpen, setIsSymptomModalOpen] = useState(false);
-  const [isPrescriptionModalOpen, setIsPrescriptionModalOpen] = useState(false);
-  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [paymentModalData, setPaymentModalData] = useState<PaymentBookingData | null>(null);
+  const [isWhatsAppBotOpen, setIsWhatsAppBotOpen] = useState(false);
   const [isStaffOpsOpen, setIsStaffOpsOpen] = useState(false);
-  const [selectedTestForDetail, setSelectedTestForDetail] = useState<DiagnosticTest | null>(null);
-  const [activeVerificationBooking, setActiveVerificationBooking] = useState<TestBooking | null>(null);
-  const [activeTab, setActiveTab] = useState<'home' | 'catalogue' | 'tracker' | 'doctors'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'doctors' | 'tracker'>('home');
 
   useEffect(() => {
     localStorage.setItem(LANG_STORAGE_KEY, language);
   }, [language]);
-
-  useEffect(() => {
-    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
-  }, [cart]);
-
-  useEffect(() => {
-    localStorage.setItem(BOOKINGS_STORAGE_KEY, JSON.stringify(bookings));
-  }, [bookings]);
 
   useEffect(() => {
     localStorage.setItem(DOC_REQUESTS_STORAGE_KEY, JSON.stringify(doctorRequests));
@@ -141,96 +163,14 @@ export const LabProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setLanguageState(lang);
   };
 
-  const addToCart = (test: DiagnosticTest) => {
-    setCart(prev => {
-      if (prev.some(item => item.id === test.id)) return prev;
-      return [...prev, test];
-    });
+  const openPaymentModal = (data: PaymentBookingData) => {
+    setPaymentModalData(data);
+    setIsPaymentModalOpen(true);
   };
 
-  const removeFromCart = (testId: string) => {
-    setCart(prev => prev.filter(item => item.id !== testId));
-  };
-
-  const clearCart = () => {
-    setCart([]);
-  };
-
-  const isInCart = (testId: string) => {
-    return cart.some(item => item.id === testId);
-  };
-
-  const cartTotalMrp = cart.reduce((acc, item) => acc + item.mrp, 0);
-  const cartTotalPayable = cart.reduce((acc, item) => acc + item.price, 0);
-  const cartDiscount = cartTotalMrp - cartTotalPayable;
-
-  const createBooking = (bookingData: Omit<TestBooking, 'bookingId' | 'createdAt' | 'statusHistory' | 'reportStatus'>): TestBooking => {
-    const randomSuffix = Math.floor(10000 + Math.random() * 90000);
-    const bookingId = `RSL-2026-${randomSuffix}`;
-    const nowIso = new Date().toISOString();
-    const timeFormatted = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-
-    const newBooking: TestBooking = {
-      ...bookingData,
-      bookingId,
-      createdAt: nowIso,
-      reportStatus: 'BOOKED',
-      statusHistory: [
-        {
-          status: 'BOOKED',
-          timestamp: timeFormatted,
-          note: 'Booking successfully confirmed via online portal.'
-        }
-      ]
-    };
-
-    setBookings(prev => [newBooking, ...prev]);
-    return newBooking;
-  };
-
-  const updateBookingStatus = (bookingId: string, newStatus: ReportStatus, note?: string) => {
-    const timeFormatted = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-    setBookings(prev => prev.map(booking => {
-      if (booking.bookingId !== bookingId) return booking;
-
-      const defaultNotes: Record<ReportStatus, string> = {
-        BOOKED: 'Booking confirmed.',
-        PHLEBOTOMIST_ASSIGNED: 'Phlebotomist Manoj Kumar assigned for doorstep visit.',
-        SAMPLE_COLLECTED: 'Sample successfully collected and logged in Ara central facility.',
-        IN_TESTING: 'Automated 5-part hematology / biochemistry analyzer processing.',
-        REPORT_READY: 'Report verified and signed by Consultant Pathologist.',
-        SENT_VIA_WHATSAPP: 'Digitally signed PDF report delivered directly to registered WhatsApp number.'
-      };
-
-      const updatedHistory = [
-        ...booking.statusHistory,
-        {
-          status: newStatus,
-          timestamp: timeFormatted,
-          note: note || defaultNotes[newStatus]
-        }
-      ];
-
-      return {
-        ...booking,
-        reportStatus: newStatus,
-        statusHistory: updatedHistory,
-        phlebotomistName: newStatus === 'PHLEBOTOMIST_ASSIGNED' || newStatus === 'SAMPLE_COLLECTED' || newStatus === 'IN_TESTING' 
-          ? (booking.phlebotomistName || 'Manoj Kumar (Certified DMLT)') 
-          : booking.phlebotomistName,
-        phlebotomistPhone: booking.phlebotomistPhone || '+91 99341 82910'
-      };
-    }));
-  };
-
-  const getBookingById = (bookingId: string): TestBooking | undefined => {
-    const cleanId = bookingId.trim().toUpperCase();
-    return bookings.find(b => b.bookingId.toUpperCase() === cleanId);
-  };
-
-  const getBookingsByPhone = (phone: string): TestBooking[] => {
-    const cleanPhone = phone.replace(/\D/g, '').slice(-10);
-    return bookings.filter(b => b.patient.whatsappPhone.replace(/\D/g, '').slice(-10) === cleanPhone);
+  const closePaymentModal = () => {
+    setIsPaymentModalOpen(false);
+    setPaymentModalData(null);
   };
 
   const createDoctorRequest = (requestData: Omit<DoctorConciergeRequest, 'requestId' | 'createdAt' | 'status'>): DoctorConciergeRequest => {
@@ -260,39 +200,55 @@ export const LabProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }));
   };
 
+  const releaseTokenSlip = (requestId: string, tokenNo: string, confirmedTime: string, notes?: string) => {
+    setDoctorRequests(prev => prev.map(req => {
+      if (req.requestId !== requestId) return req;
+      return {
+        ...req,
+        status: 'TOKEN_CONFIRMED',
+        confirmedTokenNumber: tokenNo,
+        confirmedTime: confirmedTime,
+        slipReleasedAt: new Date().toISOString(),
+        slipNotes: notes || 'Official Doctor Token / Parcha Slip secured from clinic counter.'
+      };
+    }));
+  };
+
+  const autoRefundToken = (requestId: string, reason: string) => {
+    const refundUtr = `REF-UPI-${Date.now().toString().slice(-6)}-${Math.floor(1000 + Math.random() * 9000)}`;
+    setDoctorRequests(prev => prev.map(req => {
+      if (req.requestId !== requestId) return req;
+      return {
+        ...req,
+        status: 'UNAVAILABLE_REFUNDED',
+        paymentStatus: 'REFUNDED',
+        refundStatus: 'AUTO_REFUNDED',
+        refundAmount: req.tokenBookingFee || 39,
+        refundUtr: refundUtr,
+        refundedAt: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' }),
+        refundReason: reason || 'Doctor unavailable / Clinic queue quota full'
+      };
+    }));
+  };
+
   return (
     <LabContext.Provider value={{
       language,
       toggleLanguage,
       setLanguage,
-      cart,
-      addToCart,
-      removeFromCart,
-      clearCart,
-      isInCart,
-      cartTotalMrp,
-      cartTotalPayable,
-      cartDiscount,
-      bookings,
-      createBooking,
-      updateBookingStatus,
-      getBookingById,
-      getBookingsByPhone,
       doctorRequests,
       createDoctorRequest,
       updateDoctorRequestStatus,
-      isSymptomModalOpen,
-      setIsSymptomModalOpen,
-      isPrescriptionModalOpen,
-      setIsPrescriptionModalOpen,
-      isBookingModalOpen,
-      setIsBookingModalOpen,
+      releaseTokenSlip,
+      autoRefundToken,
+      isPaymentModalOpen,
+      paymentModalData,
+      openPaymentModal,
+      closePaymentModal,
+      isWhatsAppBotOpen,
+      setIsWhatsAppBotOpen,
       isStaffOpsOpen,
       setIsStaffOpsOpen,
-      selectedTestForDetail,
-      setSelectedTestForDetail,
-      activeVerificationBooking,
-      setActiveVerificationBooking,
       activeTab,
       setActiveTab
     }}>

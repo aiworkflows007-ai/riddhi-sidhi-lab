@@ -4,6 +4,8 @@ import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { DoctorConcierge } from './components/DoctorConcierge';
 import { ReportTracker } from './components/ReportTracker';
+import { PaymentModal } from './components/PaymentModal';
+import { WhatsAppBotModal } from './components/WhatsAppBotModal';
 import { StaffOpsDrawer } from './components/StaffOpsDrawer';
 import { StickyMobileBar } from './components/StickyMobileBar';
 import { Footer } from './components/Footer';
@@ -40,7 +42,9 @@ const MainLayout: React.FC = () => {
 
       <Footer />
 
-      {/* Global Staff Drawer & Mobile Bar */}
+      {/* Global Modals & Drawers */}
+      <PaymentModal />
+      <WhatsAppBotModal />
       <StaffOpsDrawer />
       <StickyMobileBar />
     </div>

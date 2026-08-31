@@ -20,7 +20,8 @@ export const Navbar: React.FC = () => {
     toggleLanguage, 
     activeTab, 
     setActiveTab, 
-    setIsStaffOpsOpen
+    setIsStaffOpsOpen,
+    setIsWhatsAppBotOpen
   } = useLab();
 
   return (
@@ -108,18 +109,16 @@ export const Navbar: React.FC = () => {
               <span>{language === 'en' ? 'हिन्दी' : 'English'}</span>
             </button>
 
-            {/* WhatsApp CTA Button */}
-            <a 
-              href="https://wa.me/917999614511?text=Hello%20DoctorSathi%20Ara%2C%20mujhe%20doctor%20ka%20number%20lagwana%20hai"
-              target="_blank"
-              rel="noopener noreferrer"
+            {/* WhatsApp AI Bot Button */}
+            <button 
+              onClick={() => setIsWhatsAppBotOpen(true)}
               className="btn btn-sm btn-whatsapp"
-              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700 }}
-              title="Book via WhatsApp"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontWeight: 800 }}
+              title="Interactive AI WhatsApp Bot"
             >
               <MessageSquare size={16} />
-              <span>{language === 'hi' ? 'व्हाट्सएप बुकिंग (₹39)' : 'Book WhatsApp'}</span>
-            </a>
+              <span>{language === 'hi' ? '🤖 WhatsApp बॉट (₹39)' : '🤖 AI WhatsApp Bot'}</span>
+            </button>
           </div>
         </div>
       </div>

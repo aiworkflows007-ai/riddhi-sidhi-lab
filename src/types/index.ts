@@ -11,21 +11,23 @@ export type ReportStatus =
 export type PaymentStatus = 'PAID' | 'PAY_ON_COLLECTION' | 'SIMULATED_SUCCESS';
 
 export type ConciergeStatus = 
+  | 'PAYMENT_PENDING'
   | 'REQUESTED'
   | 'LINE_QUEUED'
   | 'TOKEN_CONFIRMED'
-  | 'COMPLETED'
-  | 'UNAVAILABLE';
+  | 'UNAVAILABLE_REFUNDED';
+
+export type PaymentMethod = 'UPI_GPAY' | 'UPI_PHONEPE' | 'UPI_PAYTM' | 'UPI_QR' | 'RAZORPAY' | 'WHATSAPP_UPI';
 
 export interface DiagnosticTest {
   id: string;
   name: string;
   nameHi: string;
-  category: 'fever' | 'diabetes' | 'thyroid' | 'full_body' | 'heart' | 'liver_kidney' | 'vitamins' | 'women' | 'routine';
+  category: string;
   mrp: number;
   price: number;
   discountPercent: number;
-  fastingHours: number; // 0 if no fasting
+  fastingHours: number;
   fastingNoteEn: string;
   fastingNoteHi: string;
   turnaroundTime: string;
@@ -49,6 +51,30 @@ export interface SymptomCluster {
   suggestedTestIds: string[];
   packageTitleEn: string;
   packageTitleHi: string;
+}
+
+export interface TestBooking {
+  bookingId: string;
+  createdAt: string;
+  patient: PatientDetails;
+  fulfillmentType: FulfillmentType;
+  preferredDate: string;
+  preferredSlot: string;
+  selectedTests: DiagnosticTest[];
+  totalMrp: number;
+  discountAmount: number;
+  homeCollectionFee: number;
+  finalPayable: number;
+  paymentStatus: PaymentStatus;
+  paymentRefId?: string;
+  reportStatus: ReportStatus;
+  phlebotomistName?: string;
+  phlebotomistPhone?: string;
+  statusHistory: Array<{
+    status: ReportStatus;
+    timestamp: string;
+    note: string;
+  }>;
 }
 
 export interface DoctorProfile {
@@ -82,30 +108,6 @@ export interface PatientDetails {
   pincode?: string;
 }
 
-export interface TestBooking {
-  bookingId: string;
-  createdAt: string;
-  patient: PatientDetails;
-  fulfillmentType: FulfillmentType;
-  preferredDate: string;
-  preferredSlot: string;
-  selectedTests: DiagnosticTest[];
-  totalMrp: number;
-  discountAmount: number;
-  homeCollectionFee: number;
-  finalPayable: number;
-  paymentStatus: PaymentStatus;
-  paymentRefId?: string;
-  reportStatus: ReportStatus;
-  phlebotomistName?: string;
-  phlebotomistPhone?: string;
-  statusHistory: Array<{
-    status: ReportStatus;
-    timestamp: string;
-    note: string;
-  }>;
-}
-
 export interface DoctorConciergeRequest {
   requestId: string;
   createdAt: string;
@@ -121,7 +123,25 @@ export interface DoctorConciergeRequest {
   preferredSlot: string;
   symptomsNote?: string;
   status: ConciergeStatus;
+  tokenBookingFee: number; // e.g. 39
+  
+  // Payment Details
+  paymentStatus: 'PAID' | 'PENDING' | 'REFUNDED';
+  paymentMethod: PaymentMethod;
+  paymentUtr?: string;
+  paidAt?: string;
+
+  // Slip Release Details
   assignedRunner?: string;
-  confirmedTokenNumber?: string;
-  confirmedTime?: string;
+  confirmedTokenNumber?: string; // e.g. "Serial #14"
+  confirmedTime?: string; // e.g. "10:30 AM"
+  slipReleasedAt?: string;
+  slipNotes?: string;
+
+  // Auto-Refund Details (if not confirmed)
+  refundStatus?: 'NOT_APPLICABLE' | 'AUTO_REFUNDED';
+  refundAmount?: number;
+  refundUtr?: string;
+  refundedAt?: string;
+  refundReason?: string;
 }

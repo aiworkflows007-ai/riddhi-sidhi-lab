@@ -11,7 +11,8 @@ export const StickyMobileBar: React.FC = () => {
   const { 
     language, 
     activeTab, 
-    setActiveTab 
+    setActiveTab,
+    setIsWhatsAppBotOpen
   } = useLab();
 
   return (
@@ -79,11 +80,9 @@ export const StickyMobileBar: React.FC = () => {
         <span>{language === 'hi' ? 'ट्रैक' : 'Track'}</span>
       </button>
 
-      {/* Tab 4: WhatsApp Direct */}
-      <a 
-        href="https://wa.me/917999614511?text=Hello%20DoctorSathi%20Ara%2C%20mujhe%20doctor%20ka%20number%20lagwana%20hai"
-        target="_blank"
-        rel="noopener noreferrer"
+      {/* Tab 4: AI Bot / WhatsApp Direct */}
+      <button 
+        onClick={() => setIsWhatsAppBotOpen(true)}
         className="btn"
         style={{
           flexDirection: 'column',
@@ -96,12 +95,12 @@ export const StickyMobileBar: React.FC = () => {
           color: 'var(--whatsapp)',
           fontSize: '0.72rem',
           fontWeight: 800,
-          textDecoration: 'none'
+          cursor: 'pointer'
         }}
       >
         <MessageSquare size={18} />
-        <span>{language === 'hi' ? 'व्हाट्सएप (₹39)' : 'WhatsApp'}</span>
-      </a>
+        <span>{language === 'hi' ? '🤖 AI बॉट' : '🤖 AI Bot'}</span>
+      </button>
     </div>
   );
 };

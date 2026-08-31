@@ -22,7 +22,12 @@ import {
 import { ARA_DOCTORS } from '../data/doctors';
 
 export const Hero: React.FC = () => {
-  const { language, setActiveTab } = useLab();
+  const { 
+    language, 
+    setActiveTab, 
+    openPaymentModal, 
+    setIsWhatsAppBotOpen 
+  } = useLab();
 
   const [selectedQuickDocId, setSelectedQuickDocId] = useState(ARA_DOCTORS[0].id);
   const [quickPatientName, setQuickPatientName] = useState('');
@@ -38,9 +43,19 @@ export const Hero: React.FC = () => {
       return;
     }
 
-    const message = `Hello DoctorSathi Ara! 👋%0A%0AMujhe doctor ka number/token lagwana hai:%0A• Doctor: ${encodeURIComponent(selectedDoctor.name)} (${encodeURIComponent(selectedDoctor.specialization)})%0A• Clinic: ${encodeURIComponent(selectedDoctor.clinicName)}, ${encodeURIComponent(selectedDoctor.locality)}%0A• Patient: ${encodeURIComponent(quickPatientName)}%0A• Mobile: ${encodeURIComponent(quickPhone)}%0A• Date: ${encodeURIComponent(quickDate)}%0A• Token Fee: ₹${selectedDoctor.tokenBookingFee || 39}%0A%0AKripya subah 6 AM mera parcha lagwa kar slip bhejein.`;
-    
-    window.open(`https://wa.me/917999614511?text=${message}`, '_blank');
+    openPaymentModal({
+      patientName: quickPatientName,
+      whatsappPhone: quickPhone,
+      patientAge: 42,
+      patientGender: 'Male',
+      doctorName: selectedDoctor.name,
+      doctorSpecialization: selectedDoctor.specialization,
+      clinicName: selectedDoctor.clinicName,
+      locality: selectedDoctor.locality,
+      preferredDate: quickDate,
+      preferredSlot: 'Morning OPD Line (06:00 AM)',
+      tokenBookingFee: selectedDoctor.tokenBookingFee || 39
+    });
   };
 
   return (
@@ -125,16 +140,14 @@ export const Hero: React.FC = () => {
                 <span>{language === 'hi' ? 'डॉक्टर चुनें व नंबर लें' : 'Find Doctors & Book'}</span>
               </button>
 
-              <a 
-                href="https://wa.me/917999614511?text=Hello%20DoctorSathi%20Ara%2C%20mujhe%20doctor%20ka%20number%20lagwana%20hai"
-                target="_blank"
-                rel="noopener noreferrer"
+              <button 
+                onClick={() => setIsWhatsAppBotOpen(true)}
                 className="btn btn-whatsapp btn-lg"
                 style={{ fontWeight: 800 }}
               >
                 <MessageSquare size={20} />
-                <span>{language === 'hi' ? 'व्हाट्सएप चैट' : 'WhatsApp 1-Tap'}</span>
-              </a>
+                <span>{language === 'hi' ? '🤖 WhatsApp AI बॉट' : '🤖 WhatsApp AI Bot'}</span>
+              </button>
             </div>
           </div>
 
@@ -237,15 +250,27 @@ export const Hero: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Submit Button */}
-                <button 
-                  type="submit" 
-                  className="btn btn-whatsapp btn-lg" 
-                  style={{ width: '100%', fontWeight: 800, marginTop: '0.25rem' }}
-                >
-                  <Send size={18} />
-                  <span>{language === 'hi' ? 'व्हाट्सएप पर टोकन पक्का करें (₹39)' : 'Confirm Token on WhatsApp (₹39)'}</span>
-                </button>
+                {/* Dual Action Buttons */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '0.5rem', marginTop: '0.25rem' }}>
+                  <button 
+                    type="submit" 
+                    className="btn btn-primary" 
+                    style={{ width: '100%', fontWeight: 900, padding: '0.7rem' }}
+                  >
+                    <CheckCircle2 size={18} />
+                    <span>{language === 'hi' ? '⚡ ₹39 Pay & Book' : '⚡ Pay ₹39 & Book'}</span>
+                  </button>
+
+                  <button 
+                    type="button"
+                    onClick={() => setIsWhatsAppBotOpen(true)}
+                    className="btn btn-whatsapp" 
+                    style={{ width: '100%', fontWeight: 800, padding: '0.7rem' }}
+                  >
+                    <MessageSquare size={16} />
+                    <span>{language === 'hi' ? '🤖 AI बॉट' : '🤖 AI Bot'}</span>
+                  </button>
+                </div>
               </form>
             </div>
 
